@@ -1,6 +1,6 @@
 # Flight Radar Finland 🇫🇮
 
-A premium, real-time flight tracking application built specifically for the Finland region. It uses the OpenSky Network API to fetch live aircraft positions and Leaflet for a high-performance, dark-themed map.
+A premium, real-time flight tracking application built specifically for the Finland region. It uses the [adsb.fi](https://adsb.fi) community API to fetch live aircraft positions and Leaflet for a high-performance, dark-themed map.
 
 ## 🚀 Experience the App
 

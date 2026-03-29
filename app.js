@@ -72,87 +72,85 @@ function init() {
     closePanelBtn.onclick = () => infoPanelEl.classList.add('hidden');
 }
 
-// Fetch Flight Data from OpenSky
+// Fetch Flight Data from adsb.fi (Community API)
 async function fetchFlights() {
     try {
-        const url = `https://opensky-network.org/api/states/all?lamin=${FINLAND_BOUNDS.lamin}&lomin=${FINLAND_BOUNDS.lomin}&lamax=${FINLAND_BOUNDS.lamax}&lomax=${FINLAND_BOUNDS.lomax}`;
+        // adsb.fi provides a global v2/all endpoint; we filter locally for Finland
+        const url = `https://api.adsb.fi/v2/all`;
         const response = await fetch(url);
         
         if (!response.ok) throw new Error('API request failed');
         
         const data = await response.json();
-        updateMarkers(data.states || []);
+        const finlandFlights = (data.aircraft || []).filter(ac => 
+            ac.lat >= FINLAND_BOUNDS.lamin && 
+            ac.lat <= FINLAND_BOUNDS.lamax && 
+            ac.lon >= FINLAND_BOUNDS.lomin && 
+            ac.lon <= FINLAND_BOUNDS.lomax
+        );
+
+        updateMarkers(finlandFlights);
         
         // Hide loading on first success
         loadingOverlay.classList.add('fade-out');
         
         // Update stats
         lastUpdateEl.innerText = new Date().toLocaleTimeString();
-        flightCountEl.innerText = data.states ? data.states.length : 0;
+        flightCountEl.innerText = finlandFlights.length;
         
     } catch (error) {
         console.error('Error fetching flight data:', error);
-        // On error, still hide loading if it's visible but show status
         loadingOverlay.classList.add('fade-out');
     }
 }
 
 // Update Map Markers
-function updateMarkers(states) {
-    const currentIcaos = new Set();
+function updateMarkers(aircrafts) {
+    const currentHexes = new Set();
 
-    states.forEach(state => {
-        const [
-            icao24,
-            callsign,
-            origin_country,
-            time_position,
-            last_contact,
-            longitude,
-            latitude,
-            baro_altitude,
-            on_ground,
-            velocity,
-            true_track,
-            vertical_rate,
-            sensors,
-            geo_altitude,
-            squawk,
-            spi,
-            position_source
-        ] = state;
+    aircrafts.forEach(ac => {
+        const {
+            hex,
+            flight,
+            lat,
+            lon,
+            alt_baro,
+            gs,
+            track,
+            category
+        } = ac;
 
-        if (latitude && longitude) {
-            currentIcaos.add(icao24);
+        if (lat && lon) {
+            currentHexes.add(hex);
 
-            const position = [latitude, longitude];
-            const heading = true_track || 0;
+            const position = [lat, lon];
+            const heading = track || 0;
 
-            if (markers[icao24]) {
+            if (markers[hex]) {
                 // Update position and icon rotation
-                markers[icao24].setLatLng(position);
-                markers[icao24].setIcon(createPlaneIcon(heading));
+                markers[hex].setLatLng(position);
+                markers[hex].setIcon(createPlaneIcon(heading));
                 // Update marker metadata
-                markers[icao24].flightData = state;
+                markers[hex].flightData = ac;
             } else {
                 // Create new marker
                 const marker = L.marker(position, {
                     icon: createPlaneIcon(heading)
                 }).addTo(map);
 
-                marker.flightData = state;
-                marker.on('click', () => showFlightDetails(state));
+                marker.flightData = ac;
+                marker.on('click', () => showFlightDetails(ac));
                 
-                markers[icao24] = marker;
+                markers[hex] = marker;
             }
         }
     });
 
     // Remove markers for flights no longer in range
-    Object.keys(markers).forEach(icao24 => {
-        if (!currentIcaos.has(icao24)) {
-            map.removeLayer(markers[icao24]);
-            delete markers[icao24];
+    Object.keys(markers).forEach(hex => {
+        if (!currentHexes.has(hex)) {
+            map.removeLayer(markers[hex]);
+            delete markers[hex];
         }
     });
 }
@@ -168,30 +166,25 @@ function createPlaneIcon(heading) {
 }
 
 // Display Details in Info Panel
-function showFlightDetails(state) {
-    const [
-        icao24,
-        callsign,
-        origin_country,
-        ,, 
-        longitude,
-        latitude,
-        baro_altitude,
-        on_ground,
-        velocity,
-        true_track,
-        vertical_rate,
-        ,,
-        geo_altitude
-    ] = state;
+function showFlightDetails(ac) {
+    const {
+        hex,
+        flight,
+        alt_baro,
+        gs,
+        track,
+        desc,
+        category,
+        r // registration often available in r or reg
+    } = ac;
 
-    document.getElementById('flight-callsign').innerText = (callsign || 'N/A').trim();
-    document.getElementById('flight-origin-dest').innerText = on_ground ? 'Status: Grounded' : 'Status: En-route';
-    document.getElementById('flight-alt').innerText = baro_altitude ? `${Math.round(baro_altitude)} m` : '--';
-    document.getElementById('flight-vel').innerText = velocity ? `${Math.round(velocity * 3.6)} km/h` : '--';
-    document.getElementById('flight-heading').innerText = true_track ? `${Math.round(true_track)}°` : '--';
-    document.getElementById('flight-country').innerText = origin_country || '--';
-    document.getElementById('flight-icao').innerText = icao24.toUpperCase();
+    document.getElementById('flight-callsign').innerText = (flight || 'N/A').trim();
+    document.getElementById('flight-origin-dest').innerText = desc ? `Type: ${desc}` : 'Status: En-route';
+    document.getElementById('flight-alt').innerText = alt_baro ? `${Math.round(alt_baro / 3.28084)} m` : '--'; // adsb.fi is usually feet
+    document.getElementById('flight-vel').innerText = gs ? `${Math.round(gs * 1.852)} km/h` : '--'; // adsb.fi is usually knots
+    document.getElementById('flight-heading').innerText = track ? `${Math.round(track)}°` : '--';
+    document.getElementById('flight-country').innerText = category || 'Unknown';
+    document.getElementById('flight-icao').innerText = (hex || '').toUpperCase();
 
     infoPanelEl.classList.remove('hidden');
 }
