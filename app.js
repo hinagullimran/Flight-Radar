@@ -11,10 +11,13 @@ let map;
 let markers = {}; // Store markers by icao24
 let flightData = [];
 let refreshInterval;
+let countdownInterval;
+let timeLeft = 30;
 
 // DOM Elements
 const flightCountEl = document.getElementById('flight-count');
 const lastUpdateEl = document.getElementById('last-update');
+const countdownEl = document.getElementById('countdown');
 const infoPanelEl = document.getElementById('info-panel');
 const closePanelBtn = document.getElementById('close-panel');
 const loadingOverlay = document.getElementById('loading-overlay');
@@ -57,7 +60,13 @@ function init() {
     fetchFlights();
 
     // Refresh every 30 seconds
-    refreshInterval = setInterval(fetchFlights, 30000);
+    refreshInterval = setInterval(() => {
+        fetchFlights();
+        resetCountdown();
+    }, 30000);
+
+    // Initial countdown start
+    startCountdown();
 
     // Event Listeners
     closePanelBtn.onclick = () => infoPanelEl.classList.add('hidden');
@@ -185,6 +194,21 @@ function showFlightDetails(state) {
     document.getElementById('flight-icao').innerText = icao24.toUpperCase();
 
     infoPanelEl.classList.remove('hidden');
+}
+
+
+// Countdown Logic
+function startCountdown() {
+    countdownInterval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft < 0) timeLeft = 30;
+        countdownEl.innerText = `${timeLeft}s`;
+    }, 1000);
+}
+
+function resetCountdown() {
+    timeLeft = 30;
+    countdownEl.innerText = `${timeLeft}s`;
 }
 
 // Run init

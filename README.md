@@ -7,11 +7,11 @@ A premium, real-time flight tracking application built specifically for the Finl
 ![Flight Radar UI](https://raw.githubusercontent.com/hinagullimran/Flight-Radar/main/assets/readme_preview.png)
 
 ### Key Features
-- **Real-time Updates**: Data is refreshed every 15 seconds from the OpenSky Network.
+- **Dark Mode Aesthetic**: Uses CartoDB Dark Matter tiles for a professional aviation look.
+- **SVG Aircraft Markers**: Custom SVGs that rotate dynamically based on the aircraft's heading (true_track).
+- **Glassmorphism Detail Panel**: A side panel that appears with a blur effect, providing detailed flight statistics.
+- **Auto-Refresh Timer**: A transparent countdown letting the user know when the next data batch arrives.
 - **Finland Specific**: The map is restricted to a bounding box covering the entire Finnish territory.
-- **Glassmorphism UI**: A modern, translucent side panel displays detailed flight information on selection.
-- **Live Flight Info**: View altitude, velocity (km/h), heading, origin country, and callsign for every active aircraft.
-- **Premium Aesthetics**: Dark theme with "CartoDB Dark Matter" tiles and custom airplane markers with glow effects.
 
 ## 🧪 Technical Architecture
 
