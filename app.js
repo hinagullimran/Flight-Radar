@@ -56,8 +56,8 @@ function init() {
     // Initial Data Fetch
     fetchFlights();
 
-    // Refresh every 15 seconds (OpenSky limitations for anonymous users)
-    refreshInterval = setInterval(fetchFlights, 15000);
+    // Refresh every 30 seconds
+    refreshInterval = setInterval(fetchFlights, 30000);
 
     // Event Listeners
     closePanelBtn.onclick = () => infoPanelEl.classList.add('hidden');
