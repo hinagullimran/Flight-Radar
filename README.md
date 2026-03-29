@@ -13,6 +13,12 @@ A premium, real-time flight tracking application built specifically for the Finl
 - **Live Flight Info**: View altitude, velocity (km/h), heading, origin country, and callsign for every active aircraft.
 - **Premium Aesthetics**: Dark theme with "CartoDB Dark Matter" tiles and custom airplane markers with glow effects.
 
+## 🧪 Technical Architecture
+
+- **Frontend Logic (app.js)**: Manages the state of aircraft, handles the polling loop, and calculates rotations for markers.
+- **Rendering Engine (Leaflet.js)**: Handles the geospatial rendering of map tiles and aircraft locations.
+- **Styling (style.css)**: Implements a "Glassmorphism" design system using CSS back-drop filters and dark-mode color palettes.
+
 ## 📁 Project Structure
 
 ```text
