@@ -1,9 +1,9 @@
 // Flight Radar Finland Logic
 const FINLAND_BOUNDS = {
-    lamin: 59.8,
-    lomin: 19.1,
+    lamin: 59.5,
+    lomin: 19.5,
     lamax: 70.1,
-    lomax: 31.6
+    lomax: 31.5
 };
 
 // Initial state
