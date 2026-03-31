@@ -47,4 +47,4 @@ To run the application locally:
 > The OpenSky Network API is community-driven. If you encounter rate-limiting errors, wait a few seconds as anonymous requests are limited to a certain number per hour.
 
 ---
-*Created by Muhammad Musa*
+*Created by  Hina Gull Imran*
